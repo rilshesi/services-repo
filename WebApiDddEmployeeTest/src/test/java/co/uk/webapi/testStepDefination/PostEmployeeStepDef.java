@@ -1,7 +1,7 @@
 package co.uk.webapi.testStepDefination;
 
 import co.uk.webapi.basesClass.BaseClass;
-import co.uk.webapi.schemeModel.PostEmpoyeeModel;
+import co.uk.webapi.schemeModel.EmployeeModel;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -16,8 +16,6 @@ import io.restassured.specification.RequestSpecification;
 import java.io.IOException;
 import java.util.List;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.trustStore;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -26,7 +24,7 @@ public class PostEmployeeStepDef {
     String cType;
     private DataTable dataTable;
     private RequestSpecification requestSpec;
-    private Response response;
+    private Response postResponse;
 
 
     @Given("I have access to base class")
@@ -54,24 +52,24 @@ public class PostEmployeeStepDef {
 
 
         // adding data to PostEmployeeModel. this will make up a body for our POST
-        PostEmpoyeeModel postEmpoyeeModel = new PostEmpoyeeModel();
-        postEmpoyeeModel.setFirstname(dataFirstname);
-        postEmpoyeeModel.getLastname(dataSurename);
-        postEmpoyeeModel.setGender(dataGender);
-        postEmpoyeeModel.setSalary(dataSalary);
+        EmployeeModel employeeModel = new EmployeeModel();
+        employeeModel.setFirstname(dataFirstname);
+        employeeModel.getLastname(dataSurename);
+        employeeModel.setGender(dataGender);
+        employeeModel.setSalary(dataSalary);
 
 
         //Creating new Employee: using data we deSerialized
         //we can pass our URI inside the post(), but the hooks has already taken care of it
-        response = requestSpec.body(postEmpoyeeModel).when().post();
+        this.postResponse = requestSpec.body(employeeModel).when().post();
 
 
     }
 
-    @Then("Employee should be created as above")
-    public void employeeShouldBeCreatedAsAbove(int idToDelete) {
+    @Then("Employee should be created as above and deleted")
+    public void employeeShouldBeCreatedAsAboveAndDeleted(int idToDelete) {
 
-        try {
+        try {   // compare postResponse with data in feature file
             List<List<String>> data = dataTable.asLists();
             String dataFirstname = data.get(1).get(0);
             String dataSurename = data.get(1).get(1);
@@ -79,8 +77,8 @@ public class PostEmployeeStepDef {
             int dataSalary = Integer.parseInt(data.get(1).get(3));
 
             //Getting response and process it as jsonPath and assert with above data
-            String responseString = response.thenReturn().asString(); // return response as string
-            JsonPath jsonPath = new JsonPath(responseString);
+            String postResponseString = postResponse.thenReturn().asString(); // return response as string
+            JsonPath jsonPath = new JsonPath(postResponseString);
             idToDelete = jsonPath.get("ID"); //NOTE ID IS AUTOMATICALLY CREATED IN DATABASE WHEN WHEN POST, but we
             //   can get that id created by DB and use it in the delete process
             String firstname = jsonPath.get("Firstname");
@@ -98,15 +96,15 @@ public class PostEmployeeStepDef {
 
 
             ////We can check all Responses like body, cookies, headers, test results, status code, time and size
-            response.thenReturn().body();
-            response.thenReturn().time();
-            response.thenReturn().contentType();
-            response.thenReturn().cookies();
+            postResponse.thenReturn().body();
+            postResponse.thenReturn().time();
+            postResponse.thenReturn().contentType();
+            postResponse.thenReturn().cookies();
             //Status code
-            assertEquals(response.thenReturn().statusCode(), 201);
+            assertEquals(postResponse.thenReturn().statusCode(), 201);
 
             //headers
-            Headers headers = response.thenReturn().headers();
+            Headers headers = postResponse.thenReturn().headers();
             List<Header> header = headers.asList();
 
             for (Header head : header){
@@ -122,7 +120,8 @@ public class PostEmployeeStepDef {
         }finally {
             ///// Deleting created data
             String id = Integer.toString(idToDelete);
-            this.response = requestSpec.when().delete(id);
+            Response deleteResponse = requestSpec.when().delete(id);
+            assertEquals(deleteResponse.statusCode(),204);
         }
     }
 }

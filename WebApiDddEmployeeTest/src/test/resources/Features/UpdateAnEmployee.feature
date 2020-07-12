@@ -5,10 +5,11 @@ Feature: Updating an employee record
   So i can do my test
 
 
-
-#   you have to create/post and then PUT
+# PUT (post, put, delete)
   Scenario: Updating a single employee via the services
-    Given I have access to base class
-    And I have access to the web API or Delete
-    When I delete an employee in the web API with "86"
-    Then There should be no details
+    Given I have access to base class1
+    And I have access to the web API or PUT
+    When I post and put an employee in the web API
+      | FirstName | Surname | Gender | Salary |
+      | Thomas    | Steve   | Male   | 120000 |
+    Then Employee should be updated and deleted after

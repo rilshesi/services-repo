@@ -1,6 +1,6 @@
 package co.uk.webapi.schemeModel;
 
-public class PostEmpoyeeModel {
+public class EmployeeModel {
 
     // We are getting the data from Web API and then set it in here. this is called deSerialization
     // Here, we can add data to post from PostEmployeeStepDef class, so we can post it into WEB API

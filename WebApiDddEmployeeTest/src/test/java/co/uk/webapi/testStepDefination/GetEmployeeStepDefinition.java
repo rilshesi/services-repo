@@ -1,35 +1,34 @@
 package co.uk.webapi.testStepDefination;
 
 import co.uk.webapi.basesClass.BaseClass;
-import co.uk.webapi.schemeModel.PostEmpoyeeModel;
+import co.uk.webapi.schemeModel.EmployeeModel;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.*;  //* instead of RestAssured
+import io.restassured.RestAssured;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-
-/////////////// USING API VERB GET(); ///////////////
-
 import java.io.IOException;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
-import static junit.framework.TestCase.format;
 import static org.junit.Assert.assertEquals;
+
+/////////////// USING API VERB GET(); ///////////////
 
 
 public class GetEmployeeStepDefinition {
 
     private RequestSpecification requestSpec;
-    private Response response;
+    private Response getResponse;
     String cType;
-    private int responseId;
+    private int postResponseId;
+    private int getResponseId;
 
 
     @Given("I have access to a base file")
@@ -59,23 +58,23 @@ public class GetEmployeeStepDefinition {
         int dataSalary = Integer.parseInt(data.get(1).get(3)); //data coming is string so we need to convert to int
 
         // adding data to PostEmployeeModel. this will make up a body for our POST/CREATE
-        PostEmpoyeeModel postEmpoyeeModel = new PostEmpoyeeModel();
-        postEmpoyeeModel.setId(0);
-        postEmpoyeeModel.setFirstname(dataFirstname);
-        postEmpoyeeModel.getLastname(dataSurename);
-        postEmpoyeeModel.setGender(dataGender);
-        postEmpoyeeModel.setSalary(dataSalary);
+        EmployeeModel employeeModel = new EmployeeModel();
+        employeeModel.setId(0);
+        employeeModel.setFirstname(dataFirstname);
+        employeeModel.getLastname(dataSurename);
+        employeeModel.setGender(dataGender);
+        employeeModel.setSalary(dataSalary);
         //Creating new Employee: using data we deSerialized
         //we can pass our URI inside the post(), but the hooks has already taken care of it
-        Response postResponse = requestSpec.body(postEmpoyeeModel).when().post();
+        Response postResponse = requestSpec.body(employeeModel).when().post();
 
-        String responseString = postResponse.thenReturn().asString(); // return response as string
+        String postResponseString = postResponse.thenReturn().asString(); // return response as string
         //get the ID from jsonPath after posting/CREATING and use it to get by id
-        JsonPath jsonPath = new JsonPath(responseString);
-        this.responseId = jsonPath.get("ID");
+        JsonPath jsonPath = new JsonPath(postResponseString);
+        this.postResponseId = jsonPath.get("ID");
 
      ////GET
-        this.response = requestSpec.when().get(Integer.toString(responseId)); // API Verb get() something from API URI. see hooks class
+        this.getResponse = requestSpec.when().get(Integer.toString(postResponseId)); // API Verb get() something from API URI. see hooks class
 
     }
 
@@ -96,7 +95,7 @@ public class GetEmployeeStepDefinition {
 
 
 ////
-            String responseString = response.thenReturn().asString(); // return response as string
+            String getResponseString = getResponse.thenReturn().asString(); // return response as string
 
         /*helps to convert the string responseString object so we can get anything we need. JsonPath has all
         resources in the URI we searched for. dependency in pom.xml
@@ -109,8 +108,8 @@ public class GetEmployeeStepDefinition {
          "lastName":"Testerman"
 }
      */
-            JsonPath jsonPath = new JsonPath(responseString);
-            int id = jsonPath.get("ID");
+            JsonPath jsonPath = new JsonPath(getResponseString);
+            getResponseId = jsonPath.get("ID");
             String firstname = jsonPath.get("Firstname");
             String surname = jsonPath.get("Surname");
             String gender = jsonPath.get("Gender");
@@ -118,7 +117,7 @@ public class GetEmployeeStepDefinition {
 
 
             //// Assertion for Cucumber data and JsonPath (scheme) data
-            assertEquals(responseId,id);    // or
+            assertEquals(postResponseId,getResponseId);    // or
             assertTrue(dataFirstname.equalsIgnoreCase(firstname));
             assertEquals(dataSurename,surname);
             assertEquals(dataGender,gender);
@@ -126,15 +125,15 @@ public class GetEmployeeStepDefinition {
 
 
             ////We can check all Responses like body, cookies, headers, test results, status code, time and size
-            response.thenReturn().body();
-            response.thenReturn().time();
-            response.thenReturn().contentType();
-            response.thenReturn().cookies();
+            getResponse.thenReturn().body();
+            getResponse.thenReturn().time();
+            getResponse.thenReturn().contentType();
+            getResponse.thenReturn().cookies();
             //Status code
-            assertEquals(response.thenReturn().statusCode(), 200);
+            assertEquals(getResponse.thenReturn().statusCode(), 200);
 
             //headers
-            Headers headers = response.thenReturn().headers();
+            Headers headers = getResponse.thenReturn().headers();
             List<Header> header = headers.asList();
 
             for (Header head : header){
@@ -149,8 +148,10 @@ public class GetEmployeeStepDefinition {
             }
         }finally {
             ///// Deleting created data
-            String id = Integer.toString(responseId);
-            this.response = requestSpec.when().delete(id);
+
+            String id = Integer.toString(getResponseId);
+            Response deleteResponse = requestSpec.when().delete(id);
+            assertEquals(deleteResponse.statusCode(),204);
         }
     }
 }

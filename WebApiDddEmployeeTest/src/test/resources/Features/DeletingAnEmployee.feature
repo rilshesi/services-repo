@@ -1,4 +1,3 @@
-
 @wip
 Feature: Delete an employee record
   As a Admin user
@@ -10,8 +9,8 @@ Feature: Delete an employee record
 #   make sure you CREATE/POST before DELETE
   Scenario: Delete an employee via the services (API)
     Given I have access to a base class
-    And I have access to the web api URI and headers input is defined
-    When I Get employee with an id "2"
-    Then The response should contain data below
-      |ID |FirstName |Surname |Gender |Salary |
-      |2  |Steve     |Pound   |Male   |45000 |
+    And I have access to the web api URI and headers input was defined
+    When I create employee and delete response id
+      | FirstName | Surname | Gender | Salary |
+      | Steven     | Pound   | Male   | 5000  |
+    Then The response should contain no data

@@ -18,7 +18,7 @@ import org.junit.runner.RunWith;
         ,features ="src/test/resources"  //package where the feature file are located
         ,snippets = CucumberOptions.SnippetType.CAMELCASE   //used to determine what the method of strp def would be
 //        ,glue ={"testStepDefination"}   //package with step definitions and hooks
-        ,tags = {"@get"}
+        ,tags = {"@wip"}
 )
 public class ApiRunnerTest {
 }
