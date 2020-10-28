@@ -2,7 +2,14 @@ package co.uk.webapi.testStepDefination;
 
 import co.uk.webapi.basesClass.BaseClass;
 import co.uk.webapi.schemeModel.EmployeeModel;
+import com.aventstack.extentreports.ReportConfigurator;
+import com.sun.javafx.font.FontFactory;
+import io.cucumber.core.gherkin.vintage.internal.gherkin.deps.com.google.gson.Gson;
+import io.cucumber.core.gherkin.vintage.internal.gherkin.deps.com.google.gson.GsonBuilder;
+import io.cucumber.core.gherkin.vintage.internal.gherkin.deps.com.google.gson.JsonElement;
+import io.cucumber.core.gherkin.vintage.internal.gherkin.deps.com.google.gson.JsonParser;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.datatable.internal.difflib.Chunk;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -12,7 +19,11 @@ import io.restassured.http.Headers;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import javafx.scene.text.Font;
+import org.bson.Document;
 
+
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -29,6 +40,7 @@ public class GetEmployeeStepDefinition {
     String cType;
     private int postResponseId;
     private int getResponseId;
+
 
 
     @Given("I have access to a base file")
@@ -114,6 +126,11 @@ public class GetEmployeeStepDefinition {
             String surname = jsonPath.get("Surname");
             String gender = jsonPath.get("Gender");
             int salary = jsonPath.get("Salary");
+
+
+            //convert json to pdf
+
+
 
 
             //// Assertion for Cucumber data and JsonPath (scheme) data
